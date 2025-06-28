@@ -16,7 +16,7 @@ WIDTH, HEIGHT = 800,600
 
 # 배경 음악 재생
 
-pygame.mixer.music.load("../zero/zero.mp3")
+pygame.mixer.music.load("../zero/something different.mp3")
 pygame.mixer.music.set_volume(1)
 pygame.mixer.music.play(1)
 
@@ -157,15 +157,14 @@ while running:
         ENEMY_INTERVAL -= 1
     if score > 100:
         ENEMY_INTERVAL // 2
-    if score > 10:
+    if score >= 10 and score <= 20:
         GRAVITY = -GRAVITY
         if keys[pygame.K_SPACE] and is_jumping:
             is_jumping = True
-            if score > 40:
-                JUMP_POWER = +JUMP_POWER
+    if score >= 40:
+        GRAVITY = +GRAVITY
+        JUMP_POWER = +JUMP_POWER
 
-    if score > 30:
-        jump_velocity = -JUMP_POWER
     # 이벤트 처리
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
@@ -204,7 +203,7 @@ while running:
             pygame.draw.line(screen, (0, 200, 255), (line['x'], 0), (line['x'], y), 2)
     # ⚡ 네온 선 애니메이션
     for line in lines:
-        y = int(HEIGHT // 2 + 100 * math.sin(pygame.time.get_ticks() * 0.005 + line['offset']))
+        y = int(HEIGHT // 2 + 100 * math.sin(pygame.time.get_ticks() * 0.003 + line['offset']))
         pygame.draw.line(screen, (255, 0, 255), (line['x'], 0), (line['x'], y), 2)
 
 
