@@ -16,7 +16,7 @@ WIDTH, HEIGHT = 800,600
 
 # 배경 음악 재생
 
-pygame.mixer.music.load("../zero/something different.mp3")
+pygame.mixer.music.load("../zero/plumr.mp3")
 pygame.mixer.music.set_volume(1)
 pygame.mixer.music.play(1)
 
@@ -36,6 +36,7 @@ GRAY = (100, 100, 100)
 # 플레이어 설정
 player_size = 30
 player = pygame.Rect(WIDTH // 2, HEIGHT - player_size - 10, player_size, player_size)
+player_line = pygame.Rect(WIDTH // 2, HEIGHT // (HEIGHT-1), player_size - 14, HEIGHT)
 player_speed = 5
 
 # score
@@ -46,12 +47,12 @@ k_space = 0
 # 점프 설정
 is_jumping = False
 jump_velocity = 0
-GRAVITY = 0.4
+GRAVITY = 0.3
 JUMP_POWER = -15
 
 # 플레이어 잔상 설정
 trail = []
-TRAIL_LENGTH = 15
+TRAIL_LENGTH = 13
 
 # 발판 설정
 platforms = [
@@ -64,7 +65,7 @@ platforms = [
 # 적 설정
 enemies = []
 enemy_timer = 0
-ENEMY_INTERVAL = 900  # 더 자주 등장하도록 간격을 줄임
+ENEMY_INTERVAL = 800  # 더 자주 등장하도록 간격을 줄임
 
 # 룰 변경 시스템
 rule_timer = 0
@@ -100,7 +101,7 @@ blue_shift = 0.0
 
 def show_start_screen():
     screen.fill(BLACK)
-    title = font.render("just game", True, NEON_BLUE)
+    title = font.render(".....", True, NEON_BLUE)
     instructions = font.render("Press any key to start", True, WHITE)
     screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 40))
     pygame.display.flip()
@@ -143,7 +144,7 @@ def change_rule():
 # 게임 루프
 running = True
 while running:
-    dt = clock.tick(60)
+    dt = clock.tick(80)
     screen.fill(BLACK)
     keys = pygame.key.get_pressed()
     # 룰 변경
@@ -157,13 +158,14 @@ while running:
         ENEMY_INTERVAL -= 1
     if score > 100:
         ENEMY_INTERVAL // 2
-    if score >= 10 and score <= 20:
+    if score >= 15 and score <= 30:
         GRAVITY = -GRAVITY
-        if keys[pygame.K_SPACE] and is_jumping:
-            is_jumping = True
-    if score >= 40:
+        if keys[pygame.K_DOWN] and is_jumping:
+            JUMP_POWER = -JUMP_POWER
+    if score >= 31:
         GRAVITY = +GRAVITY
         JUMP_POWER = +JUMP_POWER
+
 
     # 이벤트 처리
     keys = pygame.key.get_pressed()
@@ -184,7 +186,7 @@ while running:
     screen.fill((r, g, b))  # 화면 채우기
 
     # ✨ 별 갯수 및 속도 점수 기반 증가
-    while len(stars) < 200 + score:
+    while len(stars) < 100 + score:
         stars.append({'x': random.randint(0, WIDTH), 'y': random.randint(0, HEIGHT), 'speed': random.uniform(1, 3)})
 
     for star in stars:
@@ -234,6 +236,9 @@ while running:
             on_platform = True
             break
 
+
+
+
     if player.y >= HEIGHT - player_size - 10:
         player.y = HEIGHT - player_size - 10
         is_jumping = False
@@ -264,10 +269,14 @@ while running:
         enemy['rect'].y = enemy['base_y'] + int(40 * math.sin(pygame.time.get_ticks() * 0.007 + enemy['offset']))
         pygame.draw.rect(screen, RED, enemy['rect'])
         if player.colliderect(enemy['rect']):
-            draw_text("why did you die?", WIDTH // 2 - 90, HEIGHT // 2, RED)
+            draw_text("it was just a tiny touth", WIDTH // 2 - 100, HEIGHT // 2, NEON_BLUE)
             pygame.display.flip()
             pygame.time.wait(2000)
             pygame.quit()
+            sys.exit()
+
+        if player_line.colliderect(enemy['rect']) and not keys[pygame.K_w]:
+            draw_text("You're really bad", WIDTH // 2 - 100, HEIGHT // 2, NEON_BLUE)
             sys.exit()
 
         for i, pos in enumerate(enemy['trail']):
@@ -277,9 +286,9 @@ while running:
             screen.blit(s, pos)
 
         if player.colliderect(enemy['rect']):
-            draw_text("YOU DIED", WIDTH // 2 - 70, HEIGHT // 2, RED)
+            draw_text("it was just a tiny touth", WIDTH // 2 - 70, HEIGHT // 2, RED)
             pygame.display.flip()
-            pygame.time.wait(2000)
+            pygame.time.wait(1000)
             pygame.quit()
             sys.exit()
 
@@ -298,6 +307,8 @@ while running:
 
     # 플레이어 그리기
     pygame.draw.rect(screen, NEON_BLUE, player)
+    pygame.draw.rect(screen, (0,0,255), player_line)
+
 
     font = pygame.font.SysFont(None, 30)
     draw_text("Reverse Controls: " + str(reverse_controls), 260, 20)
